@@ -6,17 +6,15 @@ require 'database.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $titleInput = trim($_POST['title']);
   $body = trim($_POST['body']);
-
-  if (!empty($titleInput) && !empty($body)) {
-    $statement = $conn->prepare("INSERT INTO posts (title, body) VALUES (:title, :body)");
-    $statement->execute([
-      'title' => $titleInput,
-      'body' => $body
-    ]);
-    echo "<div class='alert alert-success text-center'>Post yaratildi!</div>";
-  } else {
-    echo "<div class='alert alert-danger text-center'>Barcha maydonlarni to‘ldiring.</div>";
-  }
+}
+if (!empty($titleInput) && !empty($body)) {
+  $statement = $conn->prepare("INSERT INTO posts (title, body) VALUES (:title, :body)");
+  $statement->execute([
+    'title' => $titleInput,
+    'body' => $body
+  ]);
+  header("Location: blog.php");
+  $_SESSION['post-yaratildi'] = "Post Muvaffaqqyatli yaratildi.";
 }
 ?>
 
