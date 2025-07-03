@@ -3,11 +3,7 @@ $title = "Blog";
 require 'includes/header.php';
 require "database.php";
 
-// Post yaratildi xabarini o'qish
-if (isset($_SESSION["post-yaratildi"])) {
-  $message = $_SESSION["post-yaratildi"];
-  unset($_SESSION["post-yaratildi"]);
-}
+
 
 // Postni o'chirish
 if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST["delete_post"])) {
@@ -65,6 +61,7 @@ $posts = $statement->fetchAll();
               <rect width="100%" height="100%" fill="#55595c" /><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text>
             </svg>
 
+
             <div class="card-body">
               <a href="post.php?id=<?php echo $post['id']; ?>">
                 <h5><?php echo htmlspecialchars($post['title']); ?></h5>
@@ -72,12 +69,17 @@ $posts = $statement->fetchAll();
               <p class="card-text"> <?php echo $post['body'];  ?></p>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
-                  <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+                  <!-- EDIT FORM -->
+                  <form method="GET" action="post-edit.php" style="display: inline;">
+                    <input type="hidden" name="id" value="<?= $post['id'] ?>">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Edit</button>
+                  </form>
 
-                  <form method="POST" action="" onsubmit="return confirm('Rostan ham o\'chirmoqchimisiz')">
+                  <!-- DELETE FORM -->
+                  <form method="POST" action="" onsubmit="return confirm('Rostdan ham o‘chirmoqchimisiz?')" style="display: inline;">
                     <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
                     <input type="hidden" name="delete_post" value="1">
-                    <button type="submit">Delete</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                   </form>
                 </div>
               </div>
