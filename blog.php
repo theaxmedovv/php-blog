@@ -3,18 +3,28 @@ $title = "Blog";
 require 'includes/header.php';
 require "database.php";
 
-
-
+// Post yaratildi xabarini o'qish
 if (isset($_SESSION["post-yaratildi"])) {
-  $massage = $_SESSION["post-yaratildi"];
+  $message = $_SESSION["post-yaratildi"];
+  unset($_SESSION["post-yaratildi"]);
 }
 
+// Postni o'chirish
+if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST["delete_post"])) {
+  $post_id = (int) $_POST["post_id"];
+  $statement = $conn->prepare("DELETE FROM posts WHERE id = ?");
+  $statement->execute([$post_id]);
+  header('Location: blog.php');
+  $_SESSION['post-ochirildi'] = 'Post Muaffaqqiyatli o\'chirildi';
+  exit;
+}
 
-$statement = $conn->prepare("Select * FROM posts");
+// Postlarni olish
+$statement = $conn->prepare("SELECT * FROM posts");
 $statement->execute();
 $posts = $statement->fetchAll();
-
 ?>
+
 
 <section class="py-5 text-center container">
   <div class="row py-lg-5">
@@ -38,6 +48,14 @@ $posts = $statement->fetchAll();
         <?php unset($_SESSION["post-yaratildi"]); ?>
       </div>
     <?php endif; ?>
+
+    <?php if (isset($_SESSION["post-ochirildi"])): ?>
+      <div class="alert alert-danger" role="alert">
+        <?php echo $_SESSION["post-ochirildi"]; ?>
+        <?php unset($_SESSION["post-ochirildi"]); ?>
+      </div>
+    <?php endif; ?>
+
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
       <?php foreach ($posts as $post) : ?>
         <div class="col">
@@ -54,8 +72,13 @@ $posts = $statement->fetchAll();
               <p class="card-text"> <?php echo $post['body'];  ?></p>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
-                  <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
                   <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
+
+                  <form method="POST" action="" onsubmit="return confirm('Rostan ham o\'chirmoqchimisiz')">
+                    <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+                    <input type="hidden" name="delete_post" value="1">
+                    <button type="submit">Delete</button>
+                  </form>
                 </div>
               </div>
               <small> <?php echo $post['created_at']  ?> </small>
